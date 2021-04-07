@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2020.2 (64-bit)
+# SW Build 3064766 on Wed Nov 18 09:12:47 MST 2020
+# IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
+# Start of session at: Sun Mar 28 18:41:49 2021
+# Process ID: 98098
+# Current directory: /home/richard/Vivado/practica6/practica6.runs/synth_1
+# Command line: vivado -log BRAM_LUT.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source BRAM_LUT.tcl
+# Log file: /home/richard/Vivado/practica6/practica6.runs/synth_1/BRAM_LUT.vds
+# Journal file: /home/richard/Vivado/practica6/practica6.runs/synth_1/vivado.jou
+#-----------------------------------------------------------
+source BRAM_LUT.tcl -notrace
