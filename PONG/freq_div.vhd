@@ -39,8 +39,6 @@ architecture Behavioral of freq_div is
     
 begin
     
-    --c_div <= x"05F5E100"; -- 100MHz
-    
     process(clkFPGA, rst, clk_sig) 
         
     begin

@@ -36,7 +36,8 @@ entity keyboard_iface is
   Port (
     PS2CLK     : in std_logic;
     PS2DATA    : in std_logic;
-    scancode   : out std_logic_vector(0 to 7);
+    scancode   : out std_logic_vector(7 downto 0);
+    reset      : in std_logic;
     key_depressed: out std_logic
   );
 end keyboard_iface;
@@ -48,9 +49,11 @@ architecture Behavioral of keyboard_iface is
 begin 
 
     -- Montamos paquete
-    ps2_proc : process(ps2_s, PS2CLK)
+    ps2_proc : process(ps2_s, PS2CLK, reset)
     begin
-        if(falling_edge(PS2CLK)) then
+        if (reset = '1') then
+            ps2_s <= (others => '0');
+        elsif(falling_edge(PS2CLK)) then
             ps2_s <= ps2_s(20 downto 0) & PS2DATA;
         end if;
     end process;
@@ -66,9 +69,12 @@ begin
     end process;
     
     -- Mostramos en leds el scancode
-    leds_proc : process(ps2_s, PS2CLK)
+    leds_proc : process(ps2_s, PS2CLK, reset)
     begin
-        if(rising_edge(PS2CLK) and ps2_s(20 downto 13) = x"0F") then
+        if(reset = '1') then
+            scancode <= (others => '0');
+        -- lectura en flanco de subida para limpiar la salida cuando mantenemos pulsado una tecla
+        elsif(rising_edge(PS2CLK) and ps2_s(20 downto 13) = x"0F") then
             scancode <= ps2_s(9 downto 2);
         end if;
     end process;

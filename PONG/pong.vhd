@@ -33,8 +33,11 @@ entity pong is
 		rgb     : out std_logic_vector(11 downto 0);
         
         -- Teclado
-        PS2CLK  : in std_logic;
-        PS2DATA : in std_logic
+        PS2CLK        : in std_logic;
+        PS2DATA       : in std_logic;
+        
+        -- Display de 7 segmentos
+        seg : out std_logic_vector (6 downto 0)
      );
 end pong;
 
@@ -50,44 +53,56 @@ architecture Structural of pong is
     end component;
     
     component vgacore is
-	port
-	(
-		reset  : in std_logic;	
-		clk_in : in std_logic;
-		hsyncb : buffer std_logic;	
-		vsyncb : out std_logic;	
-		rgb    : out std_logic_vector(11 downto 0);
+        Port(
+            reset  : in std_logic;	
+            clk_in : in std_logic;
+            hsyncb : buffer std_logic;	
+            vsyncb : out std_logic;	
+            rgb    : out std_logic_vector(11 downto 0);
 		
-		clk_ball : in std_logic;
-		clk_bar  : in std_logic;
+            clk_ball : in std_logic;
+            clk_bar  : in std_logic;
 		
-		scancode      : in std_logic_vector(0 to 7);
-		key_depressed : in std_logic
-	);
+            scancode      : in std_logic_vector(7 downto 0);
+            key_depressed : in std_logic;
+            
+            rebound_count : out std_logic_vector(2 downto 0)
+        );
     end component;
     
     component keyboard_iface is
         Port (
-            PS2CLK       : in std_logic;
-            PS2DATA      : in std_logic;
-            scancode     : out std_logic_vector(0 to 7);
-            key_depressed: out std_logic
+            PS2CLK        : in std_logic;
+            PS2DATA       : in std_logic;
+            scancode      : out std_logic_vector(7 downto 0);
+            reset         : in std_logic;
+            key_depressed : out std_logic
+        );
+    end component;
+    
+    component bin2seg is
+        Port(
+            bin : in  std_logic_vector(2 downto 0);
+            seg : out std_logic_vector(6 downto 0)
         );
     end component;
     
     signal clk_ball : std_logic;
     signal clk_bar  : std_logic;
     
-    signal key_depressed : std_logic;
-    signal scancode      : std_logic_vector(0 to 7);
+    signal key_depressed_s : std_logic;
+    signal scancode_s      : std_logic_vector(7 downto 0);
+    signal rebound_count_s : std_logic_vector(2 downto 0);
     
 begin
-    component_freq_div_pelota : freq_div port map(clkFPGA, reset, clk_ball, x"05F5E100"); -- VALOR PROVISIONAL
+    component_freq_div_pelota : freq_div port map(clkFPGA, reset, clk_ball, x"00050000");
     
-    component_freq_div_barra  : freq_div port map(clkFPGA, reset, clk_bar, x"05F5E100"); -- VALOR PROVISIONAL
+    component_freq_div_barra  : freq_div port map(clkFPGA, reset, clk_bar, x"00020000");
     
-    component_vgacore         : vgacore port map(reset, clkFPGA, hsyncb, vsyncb, rgb, clk_ball, clk_bar, scancode, key_depressed);
+    component_vgacore         : vgacore port map(reset, clkFPGA, hsyncb, vsyncb, rgb, clk_ball, clk_bar, scancode_s, key_depressed_s, rebound_count_s);
     
-    component_keyboard_iface  : keyboard_iface port map(PS2CLK, PS2DATA, scancode, key_depressed);
+    component_keyboard_iface  : keyboard_iface port map(PS2CLK, PS2DATA, scancode_s, reset, key_depressed_s);
+    
+    component_7seg_disp       : bin2seg port map(rebound_count_s, seg);
 
 end Structural;
