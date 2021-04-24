@@ -192,29 +192,31 @@ end process;
 -- FSM pelota
 ball_fsm : process(ball_state, ball_next_state, ball_hpos_ini, ball_hpos_end, ball_vpos_ini, ball_vpos_end, bar_hpos_ini, bar_hpos_end, bar_vpos_ini, bar_vpos_end)
 begin
+
+    -- Nota: Los numeros que se suman o se restan a las posiciones son microajustes para el correcto funcionamiento
     case ball_state is
         when down_left =>            
-            if(ball_vpos_end = 470 or (ball_hpos_ini >= bar_hpos_ini - 9 and ball_hpos_end <= bar_hpos_end + 9 and ball_vpos_end = bar_vpos_ini)) then
+            if(ball_vpos_end >= 470 or (ball_hpos_ini >= bar_hpos_ini - 9 and ball_hpos_end <= bar_hpos_end + 9 and ball_vpos_end = bar_vpos_ini)) then
                 ball_next_state <= up_left;
-            elsif(ball_hpos_ini = 10 or (ball_hpos_ini = bar_hpos_end and ball_vpos_ini >= bar_vpos_ini - 9 and ball_vpos_end <= bar_vpos_end + 9)) then
+            elsif(ball_hpos_ini <= 10 or (ball_hpos_ini = bar_hpos_end and ball_vpos_ini >= bar_vpos_ini - 9 and ball_vpos_end <= bar_vpos_end + 9)) then
                 ball_next_state <= down_right;
             else
                 ball_next_state <= ball_state;
             end if;
             
         when up_left =>   
-            if(ball_hpos_ini = 10 or (ball_hpos_ini = bar_hpos_end and ball_vpos_ini >= bar_vpos_ini - 9 and ball_vpos_end <= bar_vpos_end + 9)) then
+            if(ball_hpos_ini <= 10 or (ball_hpos_ini = bar_hpos_end and ball_vpos_ini >= bar_vpos_ini - 9 and ball_vpos_end <= bar_vpos_end + 9)) then
                 ball_next_state <= up_right;
-            elsif(ball_vpos_ini = 20 or (ball_hpos_ini >= bar_hpos_ini - 9 and ball_hpos_end <= bar_hpos_end + 9 and ball_vpos_ini = bar_vpos_end))then
+            elsif(ball_vpos_ini <= 20 or (ball_hpos_ini >= bar_hpos_ini - 9 and ball_hpos_end <= bar_hpos_end + 9 and ball_vpos_ini = bar_vpos_end))then
                 ball_next_state <= down_left; 
             else
                 ball_next_state <= ball_state;
             end if;
         
         when up_right =>
-            if(ball_vpos_ini = 20  or (ball_hpos_ini >= bar_hpos_ini - 9 and ball_hpos_end <= bar_hpos_end + 9 and ball_vpos_ini = bar_vpos_end)) then
+            if(ball_vpos_ini <= 20  or (ball_hpos_ini >= bar_hpos_ini - 9 and ball_hpos_end <= bar_hpos_end + 9 and ball_vpos_ini = bar_vpos_end)) then
                 ball_next_state <= down_right;
-            elsif(ball_hpos_end = 295) then
+            elsif(ball_hpos_end >= 295) then
                 ball_next_state <= up_left;
             else
                 ball_next_state <= ball_state;
@@ -317,7 +319,7 @@ begin
         when down =>
             if(key_depressed = '0' and scancode = "10111000") then -- se detecta señal de subida
                 bar_next_state <= up;
-            elsif(key_depressed = '0' and scancode = "11011000" and bar_vpos_end < 470) then -- se detecta señal de bajada
+            elsif(key_depressed = '0' and scancode = "11011000" and bar_vpos_end < 469) then -- se detecta señal de bajada
                 bar_next_state <= bar_state;
             else -- se detecta obstaculo o no hay señal
                 bar_next_state <= stop;
@@ -373,9 +375,10 @@ reb_count : process (reset, clk_ball, rebound_count_s, ball_hpos_ini, ball_hpos_
 begin
     if(reset = '1') then
         rebound_count_s <= (others => '0');
-    elsif(rising_edge(clk_ball) and ((ball_hpos_ini > bar_hpos_ini - 7 and ball_hpos_end < bar_hpos_end + 7 and ball_vpos_end = bar_vpos_ini + 1) or
-                                     (ball_hpos_ini = bar_hpos_end - 1 and ball_vpos_ini > bar_vpos_ini - 7 and ball_vpos_end < bar_vpos_end + 7) or
-                                     (ball_hpos_ini > bar_hpos_ini + 7 and ball_hpos_end < bar_hpos_end + 7 and ball_vpos_ini = bar_vpos_end - 1))) then
+   -- Nota: Los numeros que se suman o se restan a las posiciones son microajustes para el correcto funcionamiento
+    elsif(rising_edge(clk_ball) and ((ball_hpos_ini >= bar_hpos_ini - 9 and ball_hpos_end <= bar_hpos_end + 9 and ball_vpos_end = bar_vpos_ini + 1) or
+                                     (ball_hpos_ini = bar_hpos_end - 1 and ball_vpos_ini >= bar_vpos_ini - 9 and ball_vpos_end <= bar_vpos_end + 9) or
+                                     (ball_hpos_ini >= bar_hpos_ini + 9 and ball_hpos_end <= bar_hpos_end + 9 and ball_vpos_ini = bar_vpos_end - 1))) then
         rebound_count_s <= rebound_count_s + 1;
     end if;
 end process;
@@ -399,11 +402,11 @@ begin
     if(rising_edge(clk_in) and we = '1') then
         RAM0(0) <= x"000"; -- negro
         RAM0(1) <= x"0F0"; -- verde
-        RAM0(2) <= x"FF0"; -- amarillo
+        RAM0(2) <= x"FB1"; -- amarillo
         RAM0(3) <= x"F0F"; -- morado
-        RAM0(4) <= x"0FF"; -- turquesa
+        RAM0(4) <= x"950"; -- marron
         RAM0(5) <= x"F00"; -- rojo
-        RAM0(6) <= x"FB1"; -- naranja
+        RAM0(6) <= x"E60"; -- naranja
         RAM0(7) <= x"AAA"; -- gris
     end if; 
 end process sync_write;
